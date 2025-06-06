@@ -444,6 +444,104 @@
             display: none;
         }
         
+        /* Estilos para el buscador */
+        .search-container {
+            position: relative;
+            width: 250px;
+            margin: 15px auto;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 20px;
+            border: 1px solid #0066ff;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0066ff;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #111;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid #0066ff;
+            border-top: none;
+            z-index: 100;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            border-bottom: 1px solid #222;
+        }
+        
+        .search-result-item:hover {
+            background: rgba(0, 102, 255, 0.2);
+        }
+        
+        .search-result-poster {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            background-color: #222;
+        }
+        
+        .search-result-info {
+            flex: 1;
+        }
+        
+        .search-result-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
+        }
+        
+        .search-result-year {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .search-loading {
+            padding: 15px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .search-no-results {
+            padding: 15px;
+            text-align: center;
+            color: #aaa;
+        }
+
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2rem;
@@ -502,6 +600,11 @@
             .movie-info {
                 max-height: 45vh;
             }
+            
+            .search-container {
+                width: 80%;
+                max-width: 300px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -546,6 +649,13 @@
         <div class="header">
             <div class="logo">PELICULASMX</div>
             <div>Estrenos y mucho mas</div>
+            
+            <!-- Buscador añadido aquí -->
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Buscar películas...">
+                <div class="search-results" id="searchResults"></div>
+            </div>
         </div>
         
         <!-- Hero Section con Slider -->
@@ -659,13 +769,6 @@
             // Configuración de las películas
             const movies = [
                 // ESTRENOS
-                {
-                    title: "Cómo entrenar a tu dragón",
-                    year: 2025,
-                    videoUrl: "https://www.dropbox.com/scl/fi/3d64svcsqrw2k5ripangg/Destino-final-6-Lazos-de-sangre-2025.mp4?rlkey=u3xtd7gmk8mei9nm7mk7oqweo&st=ui0hi022&dl=1",
-                    active: false,
-                    category: "estrenos"
-                },
                 {
                     title: "Destino final Lazos de sangre",
                     year: 2025,
@@ -1046,6 +1149,83 @@
             
             createMoviesCarousel(moviesCarousel, estrenos);
             createMoviesCarousel(recentMoviesCarousel, recientes);
+
+            // Variables para el buscador
+            let searchTimeout = null;
+            let lastSearchTerm = '';
+            
+            // Configuración del evento de búsqueda
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            
+            // Cerrar resultados al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    document.getElementById('searchResults').style.display = 'none';
+                }
+            });
+            
+            function handleSearch(event) {
+                const searchTerm = event.target.value.trim();
+                
+                if (!searchTerm) {
+                    document.getElementById('searchResults').style.display = 'none';
+                    clearTimeout(searchTimeout);
+                    lastSearchTerm = '';
+                    return;
+                }
+                
+                if (searchTerm === lastSearchTerm) return;
+                lastSearchTerm = searchTerm;
+                
+                const resultsContainer = document.getElementById('searchResults');
+                resultsContainer.innerHTML = '<div class="search-loading">Buscando...</div>';
+                resultsContainer.style.display = 'block';
+                
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => performSearch(searchTerm, movies), 300);
+            }
+
+            async function performSearch(searchTerm, allMovies) {
+                const resultsContainer = document.getElementById('searchResults');
+                
+                try {
+                    const filtered = allMovies.filter(movie => 
+                        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+                    ).slice(0, 10);
+                    
+                    if (filtered.length === 0) {
+                        resultsContainer.innerHTML = '<div class="search-no-results">No se encontraron películas</div>';
+                        return;
+                    }
+                    
+                    resultsContainer.innerHTML = '';
+                    filtered.forEach(movie => {
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.innerHTML = `
+                            <img class="search-result-poster" src="https://via.placeholder.com/40x60?text=Cargando..." alt="${movie.title}">
+                            <div class="search-result-info">
+                                <div class="search-result-title">${movie.title}</div>
+                                <div class="search-result-year">${movie.year}</div>
+                            </div>
+                        `;
+                        
+                        // Cargar imagen real si está disponible
+                        loadMoviePoster(movie.title, movie.year, item.querySelector('.search-result-poster'));
+                        
+                        item.addEventListener('click', () => {
+                            fetchMovieInfo(movie.title, movie.year, movie.videoUrl);
+                            resultsContainer.style.display = 'none';
+                            document.getElementById('searchInput').value = '';
+                        });
+                        
+                        resultsContainer.appendChild(item);
+                    });
+                } catch (error) {
+                    console.error('Error en la búsqueda:', error);
+                    resultsContainer.innerHTML = '<div class="search-no-results">Error al buscar</div>';
+                }
+            }
         }
     </script>
 </body>
