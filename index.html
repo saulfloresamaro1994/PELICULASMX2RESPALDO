@@ -309,12 +309,19 @@
             transition: all 0.3s ease;
         }
         
+        .trilogy-title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
         .trilogy-title {
             font-size: 20px;
-            margin-bottom: 15px;
             color: #0066ff;
             padding-left: 10px;
             border-left: 3px solid #0066ff;
+            margin: 0;
         }
         
         .movies-carousel {
@@ -325,6 +332,12 @@
             scrollbar-width: thin;
             scrollbar-color: #0066ff #0a0a0a;
             align-items: flex-start;
+            transition: all 0.4s ease;
+        }
+        
+        .movies-carousel.hidden {
+            display: none;
+            opacity: 0;
         }
         
         .movies-carousel::-webkit-scrollbar {
@@ -542,6 +555,74 @@
             color: #aaa;
         }
 
+        /* Estilos para el botón Ver más */
+        .view-more-btn {
+            background: transparent;
+            color: #0066ff;
+            border: 1px solid #0066ff;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .view-more-btn:hover {
+            background: rgba(0, 102, 255, 0.1);
+        }
+        
+        /* Estilos para la vista de todas las películas */
+        .all-movies-view {
+            display: none;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        
+        .all-movies-view.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .all-movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            padding: 10px;
+        }
+        
+        /* Estilos para el botón Regresar */
+        .back-to-categories {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+        }
+        
+        .back-to-categories.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .back-to-categories:hover {
+            background: #0055cc;
+            box-shadow: 0 4px 15px rgba(0, 100, 255, 0.5);
+        }
+
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 2rem;
@@ -605,6 +686,17 @@
                 width: 80%;
                 max-width: 300px;
             }
+            
+            .all-movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .back-to-categories {
+                right: 10px;
+                bottom: 10px;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
         }
 
         @media (max-width: 576px) {
@@ -620,6 +712,15 @@
 
             .hero-nav-btn {
                 display: none;
+            }
+            
+            .view-more-btn {
+                padding: 3px 10px;
+                font-size: 0.7rem;
+            }
+            
+            .trilogy-title {
+                font-size: 1rem;
             }
         }
     </style>
@@ -697,16 +798,28 @@
         <div class="player-overlay" id="playerOverlay"></div>
         
         <div class="trilogy-container">
-            <h3 class="trilogy-title">ESTRENOS RECIENTES</h3>
+            <div class="trilogy-title-container">
+                <h3 class="trilogy-title">ESTRENOS RECIENTES</h3>
+                <button class="view-more-btn" data-category="estrenos">Ver más</button>
+            </div>
             <div class="movies-carousel" id="moviesCarousel">
                 <!-- Las películas se agregarán aquí dinámicamente -->
+            </div>
+            <div class="all-movies-view" id="allMoviesEstrenos">
+                <div class="all-movies-grid" id="allMoviesGridEstrenos"></div>
             </div>
         </div>
         
         <div class="trilogy-container">
-            <h3 class="trilogy-title">PELÍCULAS RECIÉN AGREGADAS</h3>
+            <div class="trilogy-title-container">
+                <h3 class="trilogy-title">PELÍCULAS RECIÉN AGREGADAS</h3>
+                <button class="view-more-btn" data-category="recientes">Ver más</button>
+            </div>
             <div class="movies-carousel" id="recentMoviesCarousel">
                 <!-- Las películas se agregarán aquí dinámicamente -->
+            </div>
+            <div class="all-movies-view" id="allMoviesRecientes">
+                <div class="all-movies-grid" id="allMoviesGridRecientes"></div>
             </div>
         </div>
         
@@ -715,6 +828,9 @@
             Este sitio es solo para fines educativos
         </div>
     </div>
+
+    <!-- Botón de regresar fijo -->
+    <button class="back-to-categories" id="backToCategories">Regresar a categorías</button>
 
     <script>
         // Base de datos de usuarios (puedes agregar más usuarios aquí)
@@ -776,6 +892,97 @@
                     active: false,
                     category: "estrenos"
                 },
+                 {
+                    title: "Una película de Minecraft",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/cmdfzf53eyp22ukxy0pl0/Minecraft-2025.mp4?rlkey=ltf6arjbtkpy78ubiyao76iu0&st=l0wfsucx&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+    title: "BlancaNieves",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/5cjty2ajrh98utqobeqyj/BlancaNieves-2025.mp4?rlkey=jf1x2cv8eb0cvwbmwevuve06a&st=0mwdo8ng&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+                    title: "El contador 2",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/ut5br4teqkgtabdv668hg/El-contador-2-2025.mp4?rlkey=gt46aifbwo8v0erdv0lp7hj5j&st=f11qjjuy&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+                    title: "El día que la tierra explotó",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/xicnyg7zfxz9jylhmwqta/El-d-a-que-la-tierra-explot-2025.mp4?rlkey=4ju5foftwt7xy6wy6woxj8kwy&st=5neqz13n&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+    title: "Bridget Jones Loca por el",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/xihv7x1bq7yvy4wsyzkso/Bridget-Jones-Loca-por-el-2025.mp4?rlkey=lhizpme6vofuc5iznr04wvmo9&st=ok5ly1hv&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+    title: "Demon City",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/lzjfjt39sk931juos3iwf/Demon-City-2025-.mp4.mkv?rlkey=uldqinyaq2026f2j2qdvolo17&st=zfcnd4yz&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+    title: "El Abismo Secreto",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/xt67obuayr4zb9pey17cl/El-Abismo-Secreto-2025-mobile-custom-mobile.mp4?rlkey=b4s2eyw1oxx1hvj6wvud3te1l&st=lnhntf1v&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+    title: "El asesino del calendario",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/84gdrmin1ksuwth6m6qlc/El-asesino-del-calendario-2025-mobile.mp4?rlkey=jyjh191tcw8nq2k9znhid4auc&st=2zb977mb&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+    title: "El jardinero",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/odj5pko3dopr3o35vi1a3/El-jardinero-2025.mp4?rlkey=2enl9ovw4hhr5obbcih0zhkg4&st=mpz5k5v1&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+    title: "Plankton La película",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/5bj9vdvc3bw98bp1kvvtx/Plankton-La-pel-cula-2025.mp4?rlkey=e7b04y69ia201xyou1dbf4gr8&st=lzk4ryro&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+    title: "Rescate implacable",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/demugdodjealbowk041c5/Rescate-implacable-2025.mp4?rlkey=ou8ggn3ikoi91v2pdtb9fmu2t&st=z47gssyr&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+    title: "Las aventuras de Dog Man",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/ojygofv1h0f0sfjx1pz15/Las-aventuras-de-Dog-Man-2025.mp4?rlkey=gks4mq7cmmx9lnr3jxwgh85kp&st=2kz1dhju&dl=1",
+    active: false,
+    category: "estrenos"
+                },
+                {
+                    title: "Contraataque",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/4rviuv5vj8q4w4m3thyom/Contraataque-2025.mp4?rlkey=zfld14cnkqagaxk9bbn5furqc&st=3g2k2b9g&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
                 {
                     title: "Captain America: Brave New World",
                     year: 2025,
@@ -784,32 +991,32 @@
                     category: "estrenos"
                 },
                 {
-                    title: "Una película de Minecraft",
-                    year: 2025,
-                    videoUrl: "https://www.dropbox.com/scl/fi/cmdfzf53eyp22ukxy0pl0/Minecraft-2025.mp4?rlkey=ltf6arjbtkpy78ubiyao76iu0&st=l0wfsucx&dl=1",
-                    active: false,
-                    category: "estrenos"
-                },
-                {
-                    title: "Criaturas Línea de extinción",
-                    year: 2024,
-                    videoUrl: "https://www.dropbox.com/scl/fi/iyr7tlsskue7a2o44k80a/Elevation-2024.mp4?rlkey=iisyj85pf8nsb9t9ns3g3a0vc&st=hcsepb2q&dl=1",
-                    active: false,
-                    category: "estrenos"
-                },
-                {
-                    title: "Sonic 3 La Película",
-                    year: 2024,
-                    videoUrl: "https://www.dropbox.com/scl/fi/ouwll073jd0ict6m6t6ru/Sonic-3-La-Pel-cula-2024.mkv?rlkey=p737r3mid3xugl7v6hc884efm&st=aolmpsxk&dl=1",
-                    active: false,
-                    category: "estrenos"
+    title: "Saint Catherine",
+    year: 2025,
+    videoUrl: "https://www.dropbox.com/scl/fi/f2vwder1uv3uzknup96ai/Saint-Catherine-2025.mp4?rlkey=6e6n20nkljzt53keesnhojmbx&st=tlj2xqzk&dl=1",
+    active: false,
+    category: "estrenos"
                 },
                 
                 // RECIENTES
                 {
-                    title: "Damsel",
+                    title: "Ricky Stanicky El Impostor",
                     year: 2024,
-                    videoUrl: "https://www.dropbox.com/scl/fi/o7huu2fdzykisgehenoww/Damsel-2024.mp4?rlkey=e3dfa1wzds80p2eowarjo8ymd&st=62q34sqy&dl=1",
+                    videoUrl: "https://www.dropbox.com/scl/fi/oa7r73yg56tg7iakur47b/Ricky-Stanicky-El-Impostor-2024.mp4?rlkey=24f46ngczfh35tx09m8npgknc&st=hkllpjst&dl=1",
+                    active: false,
+                    category: "recientes"
+                },
+                {
+                    title: "Los increíbles 2",
+                    year: 2018,
+                    videoUrl: "https://www.dropbox.com/scl/fi/bk9aoopdk6rxr1qwpk2ya/Los-incre-bles-2-2018.mp4?rlkey=94oatrde7l8u7osrm6wwndbvz&st=eewgp2as&dl=1",
+                    active: false,
+                    category: "recientes"
+                },
+                {
+                    title: "Los increíbles",
+                    year: 2004,
+                    videoUrl: "https://www.dropbox.com/scl/fi/cciplvoq428qa35owndiu/Los-incre-bles-2004.mp4?rlkey=ymn05iil4ly5a0hfgn0gj3ef4&st=lk5rq50j&dl=1",
                     active: false,
                     category: "recientes"
                 },
@@ -1226,6 +1433,83 @@
                     resultsContainer.innerHTML = '<div class="search-no-results">Error al buscar</div>';
                 }
             }
+
+            // Función para capitalizar la primera letra
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            // Función para mostrar todas las películas de una categoría
+            function showAllMovies(category) {
+                // Ocultar todos los carruseles con transición
+                document.querySelectorAll('.movies-carousel').forEach(el => {
+                    el.classList.add('hidden');
+                });
+                
+                // Mostrar botón de regresar
+                document.getElementById('backToCategories').classList.add('visible');
+                
+                // Mostrar la vista de todas las películas para esta categoría
+                const allMoviesView = document.getElementById(`allMovies${capitalizeFirstLetter(category)}`);
+                const allMoviesGrid = document.getElementById(`allMoviesGrid${capitalizeFirstLetter(category)}`);
+                
+                // Activar la vista con transición
+                setTimeout(() => {
+                    allMoviesView.classList.add('active');
+                }, 10);
+                
+                // Filtrar películas por categoría
+                const categoryMovies = movies.filter(movie => movie.category === category);
+                
+                // Limpiar y crear tarjetas
+                allMoviesGrid.innerHTML = '';
+                categoryMovies.forEach(movie => {
+                    const movieCard = document.createElement('div');
+                    movieCard.className = 'movie-card';
+                    
+                    movieCard.innerHTML = `
+                        <img class="movie-card-poster" src="https://via.placeholder.com/150x225?text=Cargando..." alt="${movie.title}">
+                        <div class="movie-card-title">${movie.title}</div>
+                        <div class="movie-card-year">${movie.year}</div>
+                    `;
+                    
+                    movieCard.addEventListener('click', () => {
+                        fetchMovieInfo(movie.title, movie.year, movie.videoUrl);
+                    });
+                    
+                    allMoviesGrid.appendChild(movieCard);
+                    loadMoviePoster(movie.title, movie.year, movieCard.querySelector('.movie-card-poster'));
+                });
+            }
+
+            // Función para volver a la vista de categorías
+            function backToCategories() {
+                // Ocultar todas las vistas de "Ver más" con transición
+                document.querySelectorAll('.all-movies-view').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                // Mostrar todos los carruseles con transición
+                setTimeout(() => {
+                    document.querySelectorAll('.movies-carousel').forEach(el => {
+                        el.classList.remove('hidden');
+                    });
+                }, 400);
+                
+                // Ocultar botón de regresar
+                document.getElementById('backToCategories').classList.remove('visible');
+            }
+
+            // Configurar eventos para los botones "Ver más"
+            document.querySelectorAll('.view-more-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    showAllMovies(category);
+                });
+            });
+
+            // Configurar evento para el botón "Regresar" global
+            document.getElementById('backToCategories').addEventListener('click', backToCategories);
         }
     </script>
 </body>
