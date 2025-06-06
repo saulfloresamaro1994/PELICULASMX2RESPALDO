@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PELICULASMX - Ver Películas Online</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Estilos para el login */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            background-color: #111;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.5);
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .login-container h2 {
+            color: #0066ff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #aaa;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background-color: #222;
+            border: 1px solid #0066ff;
+            border-radius: 4px;
+            color: white;
+        }
+        
+        .login-btn {
+            background-color: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .login-btn:hover {
+            background-color: #0055cc;
+        }
+        
+        .error-message {
+            color: #ff4444;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Estilos principales */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #0066ff;
+        }
+        
+        .logo {
+            font-size: 36px;
+            color: #0066ff;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        /* Estilos para el slider */
+        .hero {
+            height: 70vh;
+            margin-bottom: 30px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: background-image 0.8s ease-in-out;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.3);
+        }
+
+        .hero-content {
+            width: 100%;
+            z-index: 2;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #0055cc;
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .hero-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 3;
+        }
+        
+        .hero-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .hero-dot.active {
+            background: #0066ff;
+            transform: scale(1.2);
+        }
+        
+        .hero-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .hero-nav-btn:hover {
+            background: #0066ff;
+        }
+        
+        .hero-prev {
+            left: 20px;
+        }
+        
+        .hero-next {
+            right: 20px;
+        }
+        
+        .player-container {
+            background-color: #0a0a0a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.5);
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            z-index: 1000;
+        }
+        
+        .player-active .trilogy-container {
+            filter: blur(3px);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .player-active .header,
+        .player-active .footer {
+            opacity: 0.5;
+        }
+        
+        .player-wrapper {
+            max-height: 70vh;
+            overflow: hidden;
+        }
+        
+        video {
+            width: 100%;
+            display: block;
+            max-height: 70vh;
+        }
+        
+        .movie-info {
+            padding: 20px;
+            background-color: #111;
+            border-top: 2px solid #0066ff;
+            max-height: 30vh;
+            overflow-y: auto;
+        }
+        
+        .movie-title {
+            font-size: 24px;
+            margin: 0 0 10px;
+            color: #0066ff;
+        }
+        
+        .movie-meta {
+            display: flex;
+            margin-bottom: 15px;
+            color: #aaa;
+            flex-wrap: wrap;
+        }
+        
+        .movie-meta span {
+            margin-right: 15px;
+        }
+        
+        .movie-plot {
+            line-height: 1.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #aaa;
+        }
+        
+        .error {
+            color: #ff4444;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        /* Estilos para el carrusel de películas */
+        .trilogy-container {
+            margin-top: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .trilogy-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #0066ff;
+            padding-left: 10px;
+            border-left: 3px solid #0066ff;
+        }
+        
+        .movies-carousel {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            padding: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #0066ff #0a0a0a;
+            align-items: flex-start;
+        }
+        
+        .movies-carousel::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .movies-carousel::-webkit-scrollbar-track {
+            background: #0a0a0a;
+            border-radius: 10px;
+        }
+        
+        .movies-carousel::-webkit-scrollbar-thumb {
+            background-color: #0066ff;
+            border-radius: 10px;
+        }
+        
+        .movie-card {
+            width: 150px;
+            background: #111;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .movie-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 100, 255, 0.7);
+        }
+        
+        .movie-card.active {
+            border: 2px solid #0066ff;
+            box-shadow: 0 0 15px rgba(0, 100, 255, 0.7);
+        }
+        
+        .movie-card-poster {
+            width: 100%;
+            height: 225px;
+            object-fit: cover;
+            background-color: #222;
+        }
+        
+        .movie-card-title {
+            padding: 10px;
+            font-size: 14px;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .movie-card-year {
+            padding: 5px 10px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+        }
+        
+        /* Estilos para el botón de cerrar */
+        .close-player {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+        
+        .close-player:hover {
+            background-color: rgba(255, 0, 0, 0.7);
+            transform: scale(1.1);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #333;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* Overlay oscuro */
+        .player-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+        }
+        
+        .player-active .player-overlay {
+            display: block;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .hero-nav-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+            
+            .movie-meta span {
+                margin-bottom: 5px;
+                display: block;
+            }
+            
+            .movie-card {
+                width: 120px;
+            }
+            
+            .movie-card-poster {
+                height: 180px;
+            }
+            
+            .close-player {
+                top: 10px;
+                right: 10px;
+                width: 25px;
+                height: 25px;
+                font-size: 16px;
+            }
+            
+            .logo {
+                font-size: 28px;
+            }
+            
+            .player-container {
+                width: 95%;
+                max-height: 95vh;
+            }
+            
+            .player-wrapper {
+                max-height: 50vh;
+            }
+            
+            video {
+                max-height: 50vh;
+            }
+            
+            .movie-info {
+                max-height: 45vh;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero {
+                height: 60vh;
+                justify-content: center;
+            }
+            
+            .hero-title {
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+            }
+
+            .hero-nav-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sistema de Login -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-container" id="loginContainer">
+            <h2>Iniciar Sesión</h2>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">Ingresar</button>
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contenido principal (oculto inicialmente) -->
+    <div class="container hidden" id="mainContent">
+        <div class="header">
+            <div class="logo">PELICULASMX</div>
+            <div>Estrenos y mucho mas</div>
+        </div>
+        
+        <!-- Hero Section con Slider -->
+        <section class="hero" id="heroSection">
+            <div class="hero-content">
+                <h1 class="hero-title" id="heroMovieTitle">Disfruta del mejor cine</h1>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" id="heroPlayBtn">
+                        <i class="fas fa-play"></i> Ver ahora
+                    </button>
+                </div>
+            </div>
+            
+            <button class="hero-nav-btn hero-prev" id="heroPrevBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="hero-nav-btn hero-next" id="heroNextBtn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <div class="hero-controls" id="heroDots"></div>
+        </section>
+        
+        <div class="player-container" id="playerContainer">
+            <div class="close-player" id="closePlayer">×</div>
+            
+            <div class="player-wrapper">
+                <video id="moviePlayer" controls>
+                    <source src="" type="video/mp4">
+                    Tu navegador no soporta el elemento de video.
+                </video>
+            </div>
+            
+            <div class="movie-info" id="movieInfo">
+                <div class="loading">Cargando información de la película...</div>
+            </div>
+        </div>
+        
+        <div class="player-overlay" id="playerOverlay"></div>
+        
+        <div class="trilogy-container">
+            <h3 class="trilogy-title">ESTRENOS RECIENTES</h3>
+            <div class="movies-carousel" id="moviesCarousel">
+                <!-- Las películas se agregarán aquí dinámicamente -->
+            </div>
+        </div>
+        
+        <div class="trilogy-container">
+            <h3 class="trilogy-title">PELÍCULAS RECIÉN AGREGADAS</h3>
+            <div class="movies-carousel" id="recentMoviesCarousel">
+                <!-- Las películas se agregarán aquí dinámicamente -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            © 2024 PELICULASMX - Todos los derechos reservados<br>
+            Este sitio es solo para fines educativos
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de usuarios (puedes agregar más usuarios aquí)
+        const users = [
+            { username: "Amor", password: "1234" },
+            { username: "usuario1", password: "clave123" },
+            { username: "invitado", password: "123456" }
+        ];
+
+        // Elementos del DOM para el login
+        const loginForm = document.getElementById('loginForm');
+        const loginContainer = document.getElementById('loginContainer');
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContent = document.getElementById('mainContent');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Función para verificar credenciales
+        function checkCredentials(username, password) {
+            return users.some(user => user.username === username && user.password === password);
+        }
+
+        // Manejar el envío del formulario de login
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (checkCredentials(username, password)) {
+                // Credenciales correctas, ocultar login y mostrar contenido
+                loginContainer.classList.add('hidden');
+                loginOverlay.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                
+                // Inicializar el contenido de películas
+                initializeMovieContent();
+            } else {
+                // Credenciales incorrectas, mostrar error
+                errorMessage.textContent = "Usuario o contraseña incorrectos";
+            }
+        });
+
+        // Mostrar siempre el formulario de login al cargar la página
+        window.addEventListener('load', function() {
+            loginContainer.classList.remove('hidden');
+            loginOverlay.classList.remove('hidden');
+            mainContent.classList.add('hidden');
+        });
+
+        // Función para inicializar el contenido de películas
+        function initializeMovieContent() {
+            // Configuración de las películas
+            const movies = [
+                // ESTRENOS
+                {
+                    title: "Cómo entrenar a tu dragón",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/3d64svcsqrw2k5ripangg/Destino-final-6-Lazos-de-sangre-2025.mp4?rlkey=u3xtd7gmk8mei9nm7mk7oqweo&st=ui0hi022&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+                    title: "Destino final Lazos de sangre",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/3d64svcsqrw2k5ripangg/Destino-final-6-Lazos-de-sangre-2025.mp4?rlkey=u3xtd7gmk8mei9nm7mk7oqweo&st=ui0hi022&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+                    title: "Captain America: Brave New World",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/zoqclegzubpbh0b9yw2ag/Capit-n-Am-rica-Un-Nuevo-Mundo-2025.mp4?rlkey=dfxs62d9oev2dkf03lwvxad3f&st=jhhg42lf&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+                    title: "Una película de Minecraft",
+                    year: 2025,
+                    videoUrl: "https://www.dropbox.com/scl/fi/cmdfzf53eyp22ukxy0pl0/Minecraft-2025.mp4?rlkey=ltf6arjbtkpy78ubiyao76iu0&st=l0wfsucx&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+                    title: "Criaturas Línea de extinción",
+                    year: 2024,
+                    videoUrl: "https://www.dropbox.com/scl/fi/iyr7tlsskue7a2o44k80a/Elevation-2024.mp4?rlkey=iisyj85pf8nsb9t9ns3g3a0vc&st=hcsepb2q&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                {
+                    title: "Sonic 3 La Película",
+                    year: 2024,
+                    videoUrl: "https://www.dropbox.com/scl/fi/ouwll073jd0ict6m6t6ru/Sonic-3-La-Pel-cula-2024.mkv?rlkey=p737r3mid3xugl7v6hc884efm&st=aolmpsxk&dl=1",
+                    active: false,
+                    category: "estrenos"
+                },
+                
+                // RECIENTES
+                {
+                    title: "Damsel",
+                    year: 2024,
+                    videoUrl: "https://www.dropbox.com/scl/fi/o7huu2fdzykisgehenoww/Damsel-2024.mp4?rlkey=e3dfa1wzds80p2eowarjo8ymd&st=62q34sqy&dl=1",
+                    active: false,
+                    category: "recientes"
+                },
+                {
+                    title: "Mufasa El Rey León",
+                    year: 2024,
+                    videoUrl: "https://www.dropbox.com/scl/fi/p56ep0fy4tmprcsve7s1m/Mufasa-El-Rey-Le-n-2024.mp4?rlkey=tuv7aoq074ygryiy4j9rk7djp&st=ymtz6ljd&dl=1",
+                    active: false,
+                    category: "recientes"
+                }
+            ];
+            
+            // Configuración del slider hero - Tomamos solo las primeras 5 películas de estrenos
+            const heroMovies = movies
+                .filter(movie => movie.category === "estrenos")
+                .slice(0, 5); // Solo las primeras 5
+            
+            // Variables de estado para el slider
+            let currentHeroIndex = 0;
+            let heroInterval = null;
+            let isHoveringHero = false;
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            // Inicialización del slider
+            function startHeroSlider() {
+                if (heroInterval) clearInterval(heroInterval);
+                
+                const dotsContainer = document.getElementById('heroDots');
+                dotsContainer.innerHTML = '';
+                
+                heroMovies.forEach((_, index) => {
+                    const dot = document.createElement('div');
+                    dot.className = `hero-dot ${index === currentHeroIndex ? 'active' : ''}`;
+                    dot.addEventListener('click', () => {
+                        currentHeroIndex = index;
+                        updateHeroSection(currentHeroIndex);
+                        resetHeroTimer();
+                    });
+                    dotsContainer.appendChild(dot);
+                });
+                
+                document.getElementById('heroPrevBtn').addEventListener('click', () => {
+                    currentHeroIndex = (currentHeroIndex - 1 + heroMovies.length) % heroMovies.length;
+                    updateHeroSection(currentHeroIndex);
+                    resetHeroTimer();
+                });
+                
+                document.getElementById('heroNextBtn').addEventListener('click', () => {
+                    currentHeroIndex = (currentHeroIndex + 1) % heroMovies.length;
+                    updateHeroSection(currentHeroIndex);
+                    resetHeroTimer();
+                });
+                
+                const heroSection = document.getElementById('heroSection');
+                heroSection.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, false);
+                
+                heroSection.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipe();
+                }, false);
+                
+                heroSection.addEventListener('mouseenter', () => {
+                    isHoveringHero = true;
+                    clearInterval(heroInterval);
+                });
+                
+                heroSection.addEventListener('mouseleave', () => {
+                    isHoveringHero = false;
+                    resetHeroTimer();
+                });
+                
+                updateHeroSection(currentHeroIndex);
+                resetHeroTimer();
+            }
+
+            function updateHeroSection(index) {
+                if (heroMovies.length === 0) return;
+                
+                const movie = heroMovies[index];
+                const heroSection = document.getElementById('heroSection');
+                
+                // Configurar imagen de fondo con placeholder
+                heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('https://via.placeholder.com/1280x720/1a3a6e/ffffff?text=${encodeURIComponent(movie.title)}')`;
+                
+                // Mostrar solo el título
+                document.getElementById('heroMovieTitle').textContent = movie.title;
+                
+                // Actualizar puntos de navegación
+                document.querySelectorAll('.hero-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+
+                // Cargar imagen real de la película si está disponible
+                fetchMoviePosterForSlider(movie.title, movie.year);
+            }
+
+            // Función para cargar el poster de fondo del slider
+            async function fetchMoviePosterForSlider(title, year) {
+                try {
+                    const apiKey = '04c35731a5ee918f014970082a0088b1';
+                    const searchUrl = year 
+                        ? `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&year=${year}`
+                        : `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}`;
+                    
+                    const searchResponse = await fetch(searchUrl);
+                    const searchData = await searchResponse.json();
+                    
+                    if (searchResponse.ok && searchData.results.length > 0) {
+                        const backdropPath = searchData.results[0].backdrop_path;
+                        if (backdropPath) {
+                            const heroSection = document.getElementById('heroSection');
+                            heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('https://image.tmdb.org/t/p/original${backdropPath}')`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al cargar imagen para el slider:', error);
+                }
+            }
+
+            function handleSwipe() {
+                const threshold = 50;
+                
+                if (touchStartX - touchEndX > threshold) {
+                    currentHeroIndex = (currentHeroIndex + 1) % heroMovies.length;
+                    updateHeroSection(currentHeroIndex);
+                } else if (touchEndX - touchStartX > threshold) {
+                    currentHeroIndex = (currentHeroIndex - 1 + heroMovies.length) % heroMovies.length;
+                    updateHeroSection(currentHeroIndex);
+                }
+                
+                resetHeroTimer();
+            }
+
+            function resetHeroTimer() {
+                if (heroInterval) clearInterval(heroInterval);
+                if (!isHoveringHero && heroMovies.length > 1) {
+                    heroInterval = setInterval(() => {
+                        currentHeroIndex = (currentHeroIndex + 1) % heroMovies.length;
+                        updateHeroSection(currentHeroIndex);
+                    }, 5000);
+                }
+            }
+
+            function playHeroMovie() {
+                const movie = heroMovies[currentHeroIndex];
+                if (movie) {
+                    fetchMovieInfo(movie.title, movie.year, movie.videoUrl);
+                }
+            }
+
+            // Configurar el botón de reproducción
+            document.getElementById('heroPlayBtn').addEventListener('click', playHeroMovie);
+            
+            // Iniciar el slider
+            startHeroSlider();
+            
+            // Configuración general
+            const language = "es-ES";
+            const container = document.querySelector('.container');
+            
+            // Elementos del DOM
+            const videoPlayer = document.getElementById('moviePlayer');
+            const movieInfoContainer = document.getElementById('movieInfo');
+            const playerContainer = document.getElementById('playerContainer');
+            const moviesCarousel = document.getElementById('moviesCarousel');
+            const recentMoviesCarousel = document.getElementById('recentMoviesCarousel');
+            const closePlayerBtn = document.getElementById('closePlayer');
+            const playerOverlay = document.getElementById('playerOverlay');
+            
+            // Clave de API de TMDb
+            const apiKey = '04c35731a5ee918f014970082a0088b1';
+            
+            // Función para formatear la duración
+            function formatRuntime(minutes) {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                return hours > 0 ? `${hours}h ${mins}min` : `${mins}min`;
+            }
+            
+            // Función para obtener los géneros
+            function getGenres(genres) {
+                return genres.map(genre => genre.name).join(', ');
+            }
+            
+            // Función para mostrar la información de la película
+            function displayMovieInfo(movie, videoUrl) {
+                const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A';
+                const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+                const runtime = movie.runtime ? formatRuntime(movie.runtime) : 'N/A';
+                const genres = movie.genres ? getGenres(movie.genres) : 'N/A';
+                const overview = movie.overview || 'No hay descripción disponible.';
+                
+                movieInfoContainer.innerHTML = `
+                    <div class="info-text">
+                        <h1 class="movie-title">${movie.title} (${releaseYear})</h1>
+                        <div class="movie-meta">
+                            <span>${releaseYear}</span>
+                            <span>${genres}</span>
+                            <span>⭐ ${rating}/10</span>
+                            <span>⏱️ ${runtime}</span>
+                        </div>
+                        <p class="movie-plot">${overview}</p>
+                    </div>
+                `;
+                
+                if (videoUrl) {
+                    videoPlayer.innerHTML = `<source src="${videoUrl}" type="video/mp4">`;
+                    videoPlayer.load();
+                }
+                
+                // Mostrar el reproductor y overlay
+                playerContainer.style.display = 'block';
+                playerOverlay.style.display = 'block';
+                container.classList.add('player-active');
+            }
+            
+            // Función para manejar errores
+            function displayError(message) {
+                movieInfoContainer.innerHTML = `<div class="error">${message}</div>`;
+                playerContainer.style.display = 'block';
+                playerOverlay.style.display = 'block';
+                container.classList.add('player-active');
+            }
+            
+            // Función para buscar la película en TMDb
+            async function fetchMovieInfo(title, year = null, videoUrl = null) {
+                try {
+                    movieInfoContainer.innerHTML = '<div class="loading">Cargando información de la película...</div>';
+                    
+                    const searchUrl = year 
+                        ? `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&year=${year}&language=${language}`
+                        : `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&language=${language}`;
+                    
+                    const searchResponse = await fetch(searchUrl);
+                    const searchData = await searchResponse.json();
+                    
+                    if (!searchResponse.ok) {
+                        throw new Error(searchData.status_message || 'Error al buscar la película');
+                    }
+                    
+                    if (searchData.results.length === 0) {
+                        throw new Error('No se encontró la película');
+                    }
+                    
+                    const movieId = searchData.results[0].id;
+                    
+                    const detailsUrl = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=${language}&append_to_response=credits`;
+                    const detailsResponse = await fetch(detailsUrl);
+                    const movieData = await detailsResponse.json();
+                    
+                    if (!detailsResponse.ok) {
+                        throw new Error(movieData.status_message || 'Error al obtener detalles de la película');
+                    }
+                    
+                    displayMovieInfo(movieData, videoUrl);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    displayError(`Error al cargar la información: ${error.message}`);
+                }
+            }
+            
+            // Función para crear el carrusel de películas
+            function createMoviesCarousel(carouselElement, moviesList) {
+                carouselElement.innerHTML = '';
+                
+                moviesList.forEach((movie, index) => {
+                    const movieCard = document.createElement('div');
+                    movieCard.className = `movie-card ${movie.active ? 'active' : ''}`;
+                    movieCard.dataset.index = index;
+                    
+                    movieCard.innerHTML = `
+                        <img class="movie-card-poster" src="https://via.placeholder.com/150x225?text=Cargando..." alt="${movie.title}">
+                        <div class="movie-card-title">${movie.title}</div>
+                        <div class="movie-card-year">${movie.year}</div>
+                    `;
+                    
+                    movieCard.addEventListener('click', () => {
+                        moviesList.forEach(m => m.active = false);
+                        movie.active = true;
+                        
+                        document.querySelectorAll('.movie-card').forEach(card => {
+                            card.classList.remove('active');
+                        });
+                        movieCard.classList.add('active');
+                        
+                        fetchMovieInfo(movie.title, movie.year, movie.videoUrl);
+                    });
+                    
+                    carouselElement.appendChild(movieCard);
+                    
+                    loadMoviePoster(movie.title, movie.year, movieCard.querySelector('.movie-card-poster'));
+                });
+            }
+            
+            // Función para cargar el poster de una película
+            async function loadMoviePoster(title, year, imgElement) {
+                try {
+                    const searchUrl = year 
+                        ? `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&year=${year}`
+                        : `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}`;
+                    
+                    const searchResponse = await fetch(searchUrl);
+                    const searchData = await searchResponse.json();
+                    
+                    if (searchResponse.ok && searchData.results.length > 0) {
+                        const posterPath = searchData.results[0].poster_path;
+                        if (posterPath) {
+                            imgElement.src = `https://image.tmdb.org/t/p/w500${posterPath}`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error al cargar el poster:', error);
+                }
+            }
+            
+            // Función para cerrar el reproductor
+            function closePlayer() {
+                playerContainer.style.display = 'none';
+                playerOverlay.style.display = 'none';
+                videoPlayer.pause();
+                container.classList.remove('player-active');
+            }
+            
+            // Evento para cerrar el reproductor
+            closePlayerBtn.addEventListener('click', closePlayer);
+            
+            // Cerrar al hacer clic en el overlay
+            playerOverlay.addEventListener('click', closePlayer);
+            
+            // Inicializar los carruseles de películas
+            const estrenos = movies.filter(movie => movie.category === "estrenos");
+            const recientes = movies.filter(movie => movie.category === "recientes");
+            
+            createMoviesCarousel(moviesCarousel, estrenos);
+            createMoviesCarousel(recentMoviesCarousel, recientes);
+        }
+    </script>
+</body>
+</html>
